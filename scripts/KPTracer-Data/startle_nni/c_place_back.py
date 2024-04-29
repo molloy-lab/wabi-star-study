@@ -30,15 +30,19 @@ def main():
         priors_path = os.path.join(cur_data_path, folder + '_priors.csv')
 
         pmap_file = os.path.join(cur_data_path, folder + '_eqclass.json')
-        pruned_tree = os.path.join(cur_res_path, 'nni_tree.newick')
+        pruned_tree = os.path.join(cur_res_path, 'original_cmat_to_nj_nni_tree.newick')
+
+        if not os.path.exists(pruned_tree):
+            print(f'missing: {[pruned_tree]}')
+            continue
 
         with open(pmap_file, 'r') as pf:
             pmap = json.load(pf)
-
+        
         data_prefix = folder 
         print(data_prefix)
         
-        replaced_tree_path = os.path.join(cur_res_path, 'replaced_nni_tree.newick')
+        replaced_tree_path = os.path.join(cur_res_path, 'replaced_original_cmat_to_nj_nni_tree.newick')
 
         pruned_tree = from_newick_get_nx_tree(pruned_tree)
 

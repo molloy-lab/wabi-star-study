@@ -34,8 +34,8 @@ def main():
 
         cmat_path = os.path.join(cur_data_path, folder + '_character_matrix.csv')
         priors_path = os.path.join(cur_data_path, folder + '_priors.csv')
-        score_path = os.path.join(cur_res_path, 'score.csv')
-        nni_tree_path = os.path.join(cur_res_path, 'replaced_nni_tree.newick')
+        score_path = os.path.join(cur_res_path, 'orginal_cmat_to_nj_score.csv')
+        nni_tree_path = os.path.join(cur_res_path, 'original_cmat_to_nj_nni_tree.newick')
         data_prefix = folder + "/"
         print(data_prefix)
 

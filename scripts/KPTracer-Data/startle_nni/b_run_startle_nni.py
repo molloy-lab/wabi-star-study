@@ -7,7 +7,7 @@ import subprocess as sp
 def write_nni_sbatch(startle_exe: str, cmat: str, priors: str, sbatch_file: str, start_tree: str):
     time="/usr/bin/time"
     rows_to_wrtie = ['#!/bin/bash', 
-                     '#SBATCH --time=24:00:00', 
+                     '#SBATCH --time=48:00:00', 
                      '#SBATCH --cpus-per-task=1', 
                      '#SBATCH --ntasks=1',
                     '#SBATCH --mem=48G',
@@ -62,7 +62,7 @@ def main():
             
         cmat_path = os.path.join(cur_data_path, folder + '_pruned_character_matrix.csv')
         priors_path = os.path.join(cur_data_path, folder + '_priors.csv')
-        nj_tree_path = os.path.join(cur_res_path, 'pruned_nj.newick')
+        nj_tree_path = os.path.join(cur_res_path, 'pruned_tree_nj.newick')
 
         nni_sbatch = os.path.join(cur_res_path, 'run_nni.sbatch')
 

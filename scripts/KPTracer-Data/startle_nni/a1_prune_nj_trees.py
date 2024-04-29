@@ -10,7 +10,7 @@ from utilities import *
 
 def main():
     
-
+    sys.setrecursionlimit(10000) ## for dendropy default is 3000
     result_dir = '/fs/cbcb-lab/ekmolloy/jdai123/star-study/bio_result/startle_nni'
 
     data_dir = "/fs/cbcb-lab/ekmolloy/jdai123/star-study/data/KPTracer-Data"
@@ -37,7 +37,8 @@ def main():
 
         data_prefix = folder 
         print(data_prefix)
-        pruned_nj_tree_path = os.path.join(cur_res_path, "pruned_nj.newick")
+        #feed to unpruned matrix get nj tree then prune nj tree
+        pruned_nj_tree_path = os.path.join(cur_res_path, "pruned_tree_nj.newick")
         # if not os.path.exists(os.path.join(cur_res_path, "nj.newick")) or True:
         if not os.path.exists(pruned_nj_tree_path):
             unpruned_tree = from_newick_get_nx_tree(nj_tree_path)
