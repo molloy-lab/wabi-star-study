@@ -3,6 +3,8 @@ import subprocess as sp
 import re
 import dendropy
 import sys
+from decimal import Decimal, ROUND_HALF_UP
+from fractions import Fraction
 
 def main():
     sys.setrecursionlimit(4000)
@@ -33,7 +35,7 @@ def main():
         
         reps = [rep for rep in os.listdir(cur_data_path) if os.path.isdir(os.path.join(cur_data_path, rep))]
         
-        avg_score = 0
+        avg_score = Decimal(0)
         num_reps = len(reps)
 
         for rep in reps:
@@ -48,7 +50,7 @@ def main():
             data_prefix = folder + "/"+rep
             print(data_prefix)
 
-            if not os.path.exists(score_path):
+            if not os.path.exists(score_path) or True:
                 score_prefix = os.path.join(cur_res_rep_path, 'nni_score')
                 score_res = sp.run([startle_exe, 'small', cmat_path, priors_path, nni_tree_path, '--output', score_prefix], capture_output=True, text=True)
             
@@ -63,7 +65,7 @@ def main():
                     raise Exception("Failed to compute score for " + cur_res_rep_path)
 
                 if score_res_match:
-                    score = float(score_res_match.group(1))
+                    score = Decimal(score_res_match.group(1)).quantize(Decimal('0.00'), rounding=ROUND_HALF_UP)
                     avg_score += score
             
                 with open(score_path, 'w', newline="") as score_file:
@@ -71,7 +73,7 @@ def main():
                     print(f'write {score_path}')
             #else:
                 #os.remove(score_path)
-        avg_score /= num_reps
+        avg_score = avg_score/ num_reps
         avg_score_file = os.path.join(cur_res_path, 'avg_score.csv')
         with open(avg_score_file, 'w', newline="") as avgf:
             avgf.write(f'{avg_score}\n')

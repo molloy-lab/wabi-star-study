@@ -34,8 +34,8 @@ def main():
             os.mkdir(cur_res_path)
             
         pmap_file = os.path.join(cur_data_path, folder + '_eqclass.json')
-        pruned_tree = os.path.join(cur_res_path, 'star_cdp_one_sol.tre')
-        
+        #pruned_tree = os.path.join(cur_res_path, 'star_cdp_one_sol.tre')
+        pruned_tree = os.path.join(cur_res_path, 'consensus_star_cdp_strict_consensus.tre')
         if not os.path.exists(pruned_tree):
             print(f"Missing {pruned_tree}")
             continue
@@ -46,11 +46,13 @@ def main():
         data_prefix = folder 
         print(data_prefix)
         
-        no_outg_tree_path = os.path.join(cur_res_path, 'removed_outg_star_cdp_one_sol.tre')
+        # no_outg_tree_path = os.path.join(cur_res_path, 'removed_outg_star_cdp_one_sol.tre')
+        no_outg_tree_path = os.path.join(cur_res_path, 'removed_outg_consensus_star_cdp_strict_consensus.tre')
         if not os.path.exists(no_outg_tree_path):
             remove_outg(pruned_tree, no_outg_tree_path)
 
-        replaced_tree_path = os.path.join(cur_res_path, 'replaced_star_cdp_one_sol.tre')
+        # replaced_tree_path = os.path.join(cur_res_path, 'replaced_star_cdp_one_sol.tre')
+        replaced_tree_path = os.path.join(cur_res_path, 'replaced_consensus_star_cdp_strict_consensus.tre')
 
         pruned_tree = from_newick_get_nx_tree(no_outg_tree_path)
 

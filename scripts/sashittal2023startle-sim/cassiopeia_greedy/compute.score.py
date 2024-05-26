@@ -1,14 +1,15 @@
 import os
 import subprocess as sp
 import re
+import dendropy
 import sys
 from decimal import Decimal, ROUND_HALF_UP
 from fractions import Fraction
 
 def main():
+    sys.setrecursionlimit(4000)
 
-
-    result_dir = '/fs/cbcb-lab/ekmolloy/jdai123/star-study/result/startle_ilp'
+    result_dir = '/fs/cbcb-lab/ekmolloy/jdai123/star-study/result/Cassiopeia-Greedy'
 
     data_dir = "/fs/cbcb-lab/ekmolloy/jdai123/star-study/data/sashittal2023startle-sim"
     
@@ -22,6 +23,7 @@ def main():
     startle_exe = os.path.join(startle_nni_dir, 'startle')
 
     folders = [f for f in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, f))]
+    folders = [f for f in folders if f.split("_")[1]=='50-ncas']
     
     score_pattern = r"small parsimony score = ([\d.]+)"
 
@@ -45,14 +47,13 @@ def main():
             cmat_path = os.path.join(os.path.join(cur_data_path, rep), 'character_matrix.csv')
             priors_path = os.path.join(os.path.join(cur_data_path, rep), 'estimated_mutation_prior-with-c.csv')
             score_path = os.path.join(cur_res_rep_path, 'score.csv')
-            ilp_tree_path = os.path.join(os.path.join(cur_res_rep_path, 'output'), 'startle_tree.newick')
-            
+            star_cdp_tree_path = os.path.join(cur_res_rep_path, 'Cassiopeia_Greedy.tre')
             data_prefix = folder + "/"+rep
             print(data_prefix)
 
             if not os.path.exists(score_path) or True:
-                score_prefix = os.path.join(cur_res_rep_path, 'ilp_score')
-                score_res = sp.run([startle_exe, 'small', cmat_path, priors_path, ilp_tree_path, '--output', score_prefix], capture_output=True, text=True)
+                score_prefix = os.path.join(cur_res_rep_path, 'Cassiopeia_Greedy_score')
+                score_res = sp.run([startle_exe, 'small', cmat_path, priors_path, star_cdp_tree_path, '--output', score_prefix], capture_output=True, text=True)
             
                 if score_res.returncode == 0:
                     score_res = score_res.stdout
@@ -74,7 +75,9 @@ def main():
                     print(f'write {score_path}')
             #else:
                 #os.remove(score_path)
-        avg_score = avg_score/ num_reps
+            
+        avg_score = avg_score / num_reps
+
         avg_score_file = os.path.join(cur_res_path, 'avg_score.csv')
         with open(avg_score_file, 'w', newline="") as avgf:
             avgf.write(f'{avg_score}\n')

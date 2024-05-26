@@ -1,29 +1,23 @@
 import os
 import subprocess as sp
 import re
+import dendropy
 import sys
-from decimal import Decimal, ROUND_HALF_UP
-from fractions import Fraction
 
 def main():
+    sys.setrecursionlimit(4000)
 
-
-    result_dir = '/fs/cbcb-lab/ekmolloy/jdai123/star-study/result/startle_ilp'
+    result_dir = '/fs/cbcb-lab/ekmolloy/jdai123/star-study/result/startle_nni'
 
     data_dir = "/fs/cbcb-lab/ekmolloy/jdai123/star-study/data/sashittal2023startle-sim"
     
-    software_dir = "/fs/cbcb-lab/ekmolloy/jdai123/clt-missing-data-study/software"
+    software_dir = "/fs/cbcb-lab/ekmolloy/jdai123/star-study/scripts/sashittal2023startle-sim"
 
-    startle_dir = os.path.join(software_dir, 'startle')
-
-    startle_nni_dir = os.path.join(startle_dir, 'build')
-    startle_nni_dir = os.path.join(startle_nni_dir, 'src')
-
-    startle_exe = os.path.join(startle_nni_dir, 'startle')
+    comp_exe = os.path.join(software_dir, 'compare_two_rooted_trees_under_star.py')
 
     folders = [f for f in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, f))]
-    
-    score_pattern = r"small parsimony score = ([\d.]+)"
+    folders = [f for f in folders if f.split("_")[1]=='50-ncas']
+
 
     for folder in folders:
         cur_data_path = os.path.join(data_dir, folder)
@@ -34,7 +28,6 @@ def main():
         
         reps = [rep for rep in os.listdir(cur_data_path) if os.path.isdir(os.path.join(cur_data_path, rep))]
         
-        avg_score = Decimal(0)
         num_reps = len(reps)
 
         for rep in reps:
@@ -44,41 +37,39 @@ def main():
             
             cmat_path = os.path.join(os.path.join(cur_data_path, rep), 'character_matrix.csv')
             priors_path = os.path.join(os.path.join(cur_data_path, rep), 'estimated_mutation_prior-with-c.csv')
-            score_path = os.path.join(cur_res_rep_path, 'score.csv')
-            ilp_tree_path = os.path.join(os.path.join(cur_res_rep_path, 'output'), 'startle_tree.newick')
-            
+            # score_path = os.path.join(cur_res_rep_path, 'RF.csv')
+            score_path = os.path.join(cur_res_rep_path, 'contract_RF-c1-1.csv')
+            nni_tree_path = os.path.join(cur_res_rep_path, 'nni_tree.newick')
+            true_tree_path = os.path.join(os.path.join(cur_data_path, rep), 'true_tree.nwk')
             data_prefix = folder + "/"+rep
             print(data_prefix)
 
             if not os.path.exists(score_path) or True:
-                score_prefix = os.path.join(cur_res_rep_path, 'ilp_score')
-                score_res = sp.run([startle_exe, 'small', cmat_path, priors_path, ilp_tree_path, '--output', score_prefix], capture_output=True, text=True)
+            #     score_res = sp.run(['python3', comp_exe
+            # , '-t1', true_tree_path, '-t2', nni_tree_path, '-c1','0', '-c2', '0', '-m', cmat_path ,'-r', '0'], capture_output=True, text=True)
             
+                score_res = sp.run(['python3', comp_exe
+            , '-t1', true_tree_path, '-t2', nni_tree_path, '-c1','1', '-c2', '1', '-m', cmat_path ,'-r', '0'], capture_output=True, text=True)
+                
                 if score_res.returncode == 0:
                     score_res = score_res.stdout
                     print(score_res)
-                
-                    score_res_match = re.search(score_pattern, score_res)
+                    [nl, i1, i2, fn, fp, tp, fnrate, fprate,tprate] = [float(x) for x in score_res.split(',')]
+                    print(f'{fn}, {fp},{tp}')
+
+
                 else:
                     print("%%")
                     print(score_res.stderr)
                     raise Exception("Failed to compute score for " + cur_res_rep_path)
 
-                if score_res_match:
-                    score = Decimal(score_res_match.group(1)).quantize(Decimal('0.00'), rounding=ROUND_HALF_UP)
-                   
-                    avg_score += score
             
                 with open(score_path, 'w', newline="") as score_file:
-                    score_file.write(f'{score}\n')
+                    score_file.write(f'{nl},{i1},{i2},{fn},{fp},{tp}, {fnrate},{fprate},{tprate}\n')
                     print(f'write {score_path}')
             #else:
                 #os.remove(score_path)
-        avg_score = avg_score/ num_reps
-        avg_score_file = os.path.join(cur_res_path, 'avg_score.csv')
-        with open(avg_score_file, 'w', newline="") as avgf:
-            avgf.write(f'{avg_score}\n')
-            print((f'write {avg_score_file}'))
+
 
 if __name__ == '__main__':
 
