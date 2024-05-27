@@ -7,7 +7,7 @@ import subprocess as sp
 def write_nni_sbatch(startle_exe: str, cmat: str, priors: str, sbatch_file: str, start_tree: str):
     time="/usr/bin/time"
     rows_to_wrtie = ['#!/bin/bash', 
-                     '#SBATCH --time=48:00:00', 
+                     '#SBATCH --time=24:00:00', 
                      '#SBATCH --cpus-per-task=1', 
                      '#SBATCH --ntasks=1',
                     '#SBATCH --mem=48G',
